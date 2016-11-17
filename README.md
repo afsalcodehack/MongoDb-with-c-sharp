@@ -3,9 +3,9 @@
 This is simple webapi based project to create update like  add new comment and like comment etc using c# and MongoDB
 
 ## model
-,,,
-public class PostModel
-    {
+ 
+     public class PostModel
+     {
         [BsonId]
         public ObjectId _id { get; set; }
         public int PostId { get; set; }
@@ -31,7 +31,6 @@ public class PostModel
 
         public int PostId { get; set; }
     }
-    ,,,
 
 
 ## Motivation
