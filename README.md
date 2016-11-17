@@ -90,17 +90,48 @@ Install latest MongoDB c# Driver from NuGet
             return "post created";
         }
 
-## API Reference
+## Add new comment using post id
 
-Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
+            var filter = Builders<PostModel>.Filter.Eq("PostId", comment.PostId);
 
-## Tests
+            var update = Builders<PostModel>.Update.Push("Comments", comment);
+            collection.FindOneAndUpdate(filter, update);
 
-Describe and show how to run the tests with code examples.
+## Like Post
 
-## Contributors
+            var _filter = Builders<PostModel>.Filter.Eq("PostId", postId);
+            var _findResult = collection.Find(_filter).FirstOrDefault();
 
-Let people know how they can dive into the project, include important links to things like issue trackers, irc, twitter accounts if applicable.
+            var _currentLike = _findResult.Like;
+
+            var update = Builders<PostModel>.Update
+            .Set("Like", _currentLike + 1);
+            var result = collection.UpdateOne(_filter, update);
+
+## Like Comments
+
+            var collection = _database.GetCollection<PostModel>("post");
+
+           var _filter = Builders<PostModel>.Filter.And(
+           Builders<PostModel>.Filter.Where(x => x.PostId == like.PostId),
+           Builders<PostModel>.Filter.Eq("Comments.CommentId", like.CommentId));
+
+            var _currentLike = collection.Find(Builders<PostModel>.Filter.Eq("PostId", like.PostId)).FirstOrDefault().Comments.Find(f => f.CommentId == like.CommentId).Like;
+
+            var update = Builders<PostModel>.Update.Set("Comments.$.Like", _currentLike + 1);
+            collection.FindOneAndUpdate(_filter, update);
+
+            var addUser = Builders<PostModel>.Update.Push("Comments.$.LikeUsers", like.UserId);
+            collection.FindOneAndUpdate(_filter, addUser);
+
+## Delete comment
+
+            var filter = Builders<PostModel>.Filter.Eq("PostId", postId);
+
+            var update = Builders<PostModel>.Update.PullFilter("Comments",
+            Builders<Comments>.Filter.Eq("CommentId", commentId));
+
+            collection.FindOneAndUpdate(filter, update);
 
 ## License
 
