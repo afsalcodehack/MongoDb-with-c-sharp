@@ -33,13 +33,62 @@ This is simple webapi based project to create update like  add new comment and l
     }
 
 
-## Motivation
+## Connection with MongoDB
 
-A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
+Install latest MongoDB c# Driver from NuGet
 
-## Installation
+        using MongoDB.Driver;
 
-Provide code examples and explanations of how to get the project.
+        protected static IMongoClient _client;
+        protected static IMongoDatabase _database;
+
+## example create new post
+
+        protected static IMongoClient _client;
+        protected static IMongoDatabase _database;
+
+       
+        public string Get()
+        {
+            _client = new MongoClient();
+            _database = _client.GetDatabase("post");
+
+            PostModel post = new PostModel()
+            {
+                UserId = 23,
+                PostId = 4,
+                PostText = "Hello im feeling good",
+                Date = DateTime.Now,
+                ImageUrl = "post.jpg",
+                Like = 1,
+                Comments = new List<Comments>()
+                {
+                    new Comments()
+                    {
+                        CommentId = 1,
+                        CommentText="nice",
+                        Date=DateTime.Now.AddDays(1),
+                        Like = 2,
+                        UserId = 45
+                    },
+                     new Comments()
+                    {
+                        CommentId = 2,
+                        CommentText="good",
+                        Date=DateTime.Now.AddDays(1),
+                        Like = 4,
+                        UserId = 46
+                    }
+                }
+            };
+
+            var collection = _database.GetCollection<PostModel>("post");
+
+            collection.Indexes.CreateOneAsync(Builders<PostModel>.IndexKeys.Ascending(_ => _.PostId));
+            collection.InsertOne(post);
+
+            return "post created";
+        }
 
 ## API Reference
 
